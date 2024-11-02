@@ -1,4 +1,4 @@
-package com.wenkrang.nian_beast.Entity;
+package com.wenkrang.nian_beast.entity;
 
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

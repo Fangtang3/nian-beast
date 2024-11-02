@@ -1,6 +1,6 @@
 name: nian_beast
 version: '${project.version}'
-main: com.wenkrang.nian_beast.Nian_beast
+main: com.wenkrang.nian_beast.NianBeast
 api-version: '1.20'
 commands:
   nb:

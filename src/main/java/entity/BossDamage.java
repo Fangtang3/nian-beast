@@ -1,23 +1,13 @@
-package com.wenkrang.nian_beast.Entity;
+package com.wenkrang.nian_beast.entity;
 
-import com.wenkrang.nian_beast.Nian_beast;
-import org.bukkit.Location;
-import org.bukkit.Particle;
-import org.bukkit.block.Block;
-import org.bukkit.entity.*;
+import com.wenkrang.nian_beast.NianBeast;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.util.BlockIterator;
-import org.bukkit.util.Vector;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-
-import static com.wenkrang.nian_beast.Entity.PlayerJoin.AutoSetTarget;
-import static com.wenkrang.nian_beast.Nian_beast.isShutdown;
+import static com.wenkrang.nian_beast.entity.PlayerJoin.AutoSetTarget;
+import static com.wenkrang.nian_beast.NianBeast.isShutdown;
 
 public class BossDamage implements Listener {
     @EventHandler
@@ -29,7 +19,7 @@ public class BossDamage implements Listener {
             @Override
             public void run() {
                 // 如果已经关闭，则取消任务
-                if (isShutdown) {
+                if (isShutdown()) {
                     cancel();
                 }
                 // 如果玩家在线
@@ -40,14 +30,14 @@ public class BossDamage implements Listener {
                         public void run() {
                             AutoSetTarget(40, "nian_beastthree", event.getPlayer());
                         }
-                    }.runTaskLater(Nian_beast.getPlugin(Nian_beast.class), 0);
+                    }.runTaskLater(NianBeast.getPlugin(NianBeast.class), 0);
 
                 } else {
                     // 如果玩家不在线，则取消任务
                     cancel();
                 }
             }
-        }.runTaskTimerAsynchronously(Nian_beast.getPlugin(Nian_beast.class), 0, 40);
+        }.runTaskTimerAsynchronously(NianBeast.getPlugin(NianBeast.class), 0, 40);
 
     }
 }

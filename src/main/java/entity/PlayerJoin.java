@@ -1,19 +1,17 @@
-package com.wenkrang.nian_beast.Entity;
+package com.wenkrang.nian_beast.entity;
 
-import com.wenkrang.nian_beast.Nian_beast;
+import com.wenkrang.nian_beast.NianBeast;
 import org.bukkit.*;
-import org.bukkit.block.Block;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.util.BlockIterator;
-import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
-import static com.wenkrang.nian_beast.Nian_beast.isShutdown;
+import static com.wenkrang.nian_beast.NianBeast.isShutdown;
 
 
 
@@ -31,7 +29,7 @@ public class PlayerJoin implements Listener {
         boolean IsFind = false;
 
         // 获取玩家附近的实体列表
-        List<Entity> nearbyEntities = player.getNearbyEntities(range, range, range);
+        @NotNull List<Entity> nearbyEntities = player.getNearbyEntities(range, range, range);
 
         // 遍历附近的实体列表
         for (int i = 0; i < nearbyEntities.size(); i++) {
@@ -40,7 +38,7 @@ public class PlayerJoin implements Listener {
                 // 获取附近的实体的mob对象
                 Mob mob = (Mob) nearbyEntities.get(i);
                 // 获取mob对象附近的实体列表
-                List<Entity> nearbyEntities1 = mob.getNearbyEntities(range, range, range);
+                @NotNull List<Entity> nearbyEntities1 = mob.getNearbyEntities(range, range, range);
                 // 遍历mob对象附近的实体列表
                 for (int j = 0; j < nearbyEntities1.size(); j++) {
                     Entity entity = nearbyEntities1.get(j);
@@ -102,7 +100,7 @@ public class PlayerJoin implements Listener {
             @Override
             public void run() {
                 // 如果已经关闭，则取消任务
-                if (isShutdown) {
+                if (isShutdown()) {
                     cancel();
                 }
                 // 如果玩家在线
@@ -117,14 +115,14 @@ public class PlayerJoin implements Listener {
                                 AutoSetTarget(50, "nian_beasttwo", event.getPlayer());
 
                             }
-                        }.runTaskLater(Nian_beast.getPlugin(Nian_beast.class), 0);
+                        }.runTaskLater(NianBeast.getPlugin(NianBeast.class), 0);
                     }
                 } else {
                     // 如果玩家不在线，则取消任务
                     cancel();
                 }
             }
-        }.runTaskTimerAsynchronously(Nian_beast.getPlugin(Nian_beast.class), 0, 40);
+        }.runTaskTimerAsynchronously(NianBeast.getPlugin(NianBeast.class), 0, 40);
 
     }
 }

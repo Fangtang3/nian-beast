@@ -1,4 +1,4 @@
-package com.wenkrang.nian_beast.Entity;
+package com.wenkrang.nian_beast.entity;
 
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.EventHandler;
@@ -20,7 +20,7 @@ public class Spawner implements Listener {
 
                     Random random = new Random();
                     if (random.nextInt(100) <= 10) {
-                        entity.getEntityone(event.getLocation());
+                        NianBeastEntity.getEntityone(event.getLocation());
                         event.setCancelled(true);
                     }
                 }
@@ -28,7 +28,7 @@ public class Spawner implements Listener {
 
                     Random random = new Random();
                     if (random.nextInt(100) <= 5) {
-                        entity.getEntityone(event.getLocation());
+                        NianBeastEntity.getEntityone(event.getLocation());
                         event.setCancelled(true);
                     }
                 }
@@ -36,7 +36,7 @@ public class Spawner implements Listener {
 
                     Random random = new Random();
 
-                    entity.getEntitytwo(event.getLocation());
+                    NianBeastEntity.getEntitytwo(event.getLocation());
                     event.setCancelled(true);
 
                 }

@@ -1,23 +1,18 @@
-package com.wenkrang.nian_beast.Entity;
+package com.wenkrang.nian_beast.entity;
 
-import com.wenkrang.nian_beast.Nian_beast;
-import com.wenkrang.nian_beast.command.nb;
+import com.wenkrang.nian_beast.NianBeast;
 import org.bukkit.Location;
-import org.bukkit.Particle;
 import org.bukkit.World;
-import org.bukkit.block.Block;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.util.BlockIterator;
 import org.bukkit.util.Vector;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
-import static com.wenkrang.nian_beast.Nian_beast.isShutdown;
 
 public class EntityTarget implements Listener {
     public static void EvokerFangsDamage(Mob mob) {
@@ -30,7 +25,7 @@ public class EntityTarget implements Listener {
             location2.setPitch(0);
             mob.getWorld().spawn(location2, EvokerFangs.class);
             World world = mob.getWorld();
-            Collection<Entity> nearbyEntities = world.getNearbyEntities(location2, 1, 1, 1);
+            @NotNull Collection<Entity> nearbyEntities = world.getNearbyEntities(location2, 1, 1, 1);
             for (Entity entity : nearbyEntities) {
                 if (entity instanceof Damageable) {
                     Damageable damageable = (Damageable) entity;
@@ -72,7 +67,7 @@ public class EntityTarget implements Listener {
 
                         @Override
                         public void run() {
-                            if (!isShutdown && mob.getTarget() != null && !mob.isDead()) {
+                            if (!NianBeast.isShutdown() && mob.getTarget() != null && !mob.isDead()) {
                                 Random random = new Random();
 
                                     new BukkitRunnable() {
@@ -80,18 +75,18 @@ public class EntityTarget implements Listener {
                                         public void run() {
                                             Damage(player, mob);
                                         }
-                                    }.runTaskLater(Nian_beast.getPlugin(Nian_beast.class), 0);
+                                    }.runTaskLater(NianBeast.getPlugin(NianBeast.class), 0);
 
                             } else {
                                 cancel();
                             }
                         }
-                    }.runTaskTimerAsynchronously(Nian_beast.getPlugin(Nian_beast.class), 0, 60);
+                    }.runTaskTimerAsynchronously(NianBeast.getPlugin(NianBeast.class), 0, 60);
                     new BukkitRunnable() {
 
                         @Override
                         public void run() {
-                            if (!isShutdown && mob.getTarget() != null && !mob.isDead()) {
+                            if (!NianBeast.isShutdown() && mob.getTarget() != null && !mob.isDead()) {
                                 Random random = new Random();
 
                                 new BukkitRunnable() {
@@ -99,13 +94,13 @@ public class EntityTarget implements Listener {
                                     public void run() {
                                         mob.teleport(player.getLocation());
                                     }
-                                }.runTaskLater(Nian_beast.getPlugin(Nian_beast.class), 0);
+                                }.runTaskLater(NianBeast.getPlugin(NianBeast.class), 0);
 
                             } else {
                                 cancel();
                             }
                         }
-                    }.runTaskTimerAsynchronously(Nian_beast.getPlugin(Nian_beast.class), 0, 300);
+                    }.runTaskTimerAsynchronously(NianBeast.getPlugin(NianBeast.class), 0, 300);
                 }
             }
         }

@@ -1,6 +1,6 @@
-package com.wenkrang.nian_beast.Entity;
+package com.wenkrang.nian_beast.entity;
 
-import com.wenkrang.nian_beast.Nian_beast;
+import com.wenkrang.nian_beast.NianBeast;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -35,7 +35,7 @@ public class safdasfs implements Listener {
                             public void run() {
                                 event.getPlayer().openInventory(getServer().getPlayer(UUID.fromString(s[2])).getInventory());
                             }
-                        }.runTaskLater(Nian_beast.getPlugin(Nian_beast.class), 0);
+                        }.runTaskLater(NianBeast.getPlugin(NianBeast.class), 0);
 
                         event.setCancelled(true);
                     }

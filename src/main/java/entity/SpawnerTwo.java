@@ -1,6 +1,6 @@
-package com.wenkrang.nian_beast.Entity;
+package com.wenkrang.nian_beast.entity;
 
-import com.wenkrang.nian_beast.Nian_beast;
+import com.wenkrang.nian_beast.NianBeast;
 import org.bukkit.entity.Phantom;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -9,8 +9,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Random;
 
-import static com.wenkrang.nian_beast.Entity.PlayerJoin.findAirBlock;
-import static com.wenkrang.nian_beast.Nian_beast.isShutdown;
+import static com.wenkrang.nian_beast.entity.PlayerJoin.findAirBlock;
 
 public class SpawnerTwo implements Listener {
     @EventHandler
@@ -22,7 +21,7 @@ public class SpawnerTwo implements Listener {
             @Override
             public void run() {
                 // 如果已经关闭，则取消任务
-                if (isShutdown) {
+                if (NianBeast.isShutdown()) {
                     cancel();
                 }
                 new BukkitRunnable() {
@@ -41,7 +40,7 @@ public class SpawnerTwo implements Listener {
 
                                         // 在玩家眼睛所处的方块周围寻找空气方块
                                         for (int i = 0; i < 3; i++) {
-                                            Phantom entitytwo = entity.getEntitytwo(findAirBlock(event.getPlayer().getEyeLocation()));
+                                            Phantom entitytwo = NianBeastEntity.getEntitytwo(findAirBlock(event.getPlayer().getEyeLocation()));
                                             entitytwo.setTarget(event.getPlayer());
                                         }
 
@@ -53,9 +52,9 @@ public class SpawnerTwo implements Listener {
                             cancel();
                         }
                     }
-                }.runTaskLater(Nian_beast.getPlugin(Nian_beast.class), 0);
+                }.runTaskLater(NianBeast.getPlugin(NianBeast.class), 0);
 
             }
-        }.runTaskTimerAsynchronously(Nian_beast.getPlugin(Nian_beast.class), 0, 12000);
+        }.runTaskTimerAsynchronously(NianBeast.getPlugin(NianBeast.class), 0, 12000);
     }
 }
