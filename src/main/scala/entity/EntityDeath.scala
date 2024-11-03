@@ -1,4 +1,5 @@
-package com.wenkrang.nian_beast.entity
+package com.wenkrang.nian_beast
+package entity
 
 import com.wenkrang.nian_beast.NianBeast
 import com.wenkrang.nian_beast.entity.raid.RaidEffectShow
@@ -15,7 +16,7 @@ import org.bukkit.scheduler.BukkitRunnable
 import java.io.IOException
 import java.util.{Objects, Random}
 
-object EntityDeath {
+class EntityDeath extends Listener {
   /**
    * 当实体死亡事件发生时的事件处理器。
    *
@@ -194,5 +195,3 @@ object EntityDeath {
     }.runTaskLater(JavaPlugin.getPlugin(classOf[NianBeast]), 0)
   }
 }
-
-class EntityDeath extends Listener {}

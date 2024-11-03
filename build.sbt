@@ -8,6 +8,11 @@ lazy val root = (project in file("."))
     idePackagePrefix := Some("com.wenkrang.nian_beast")
   )
 
+javacOptions ++= Seq(
+  "-source", "21",
+  "-target", "21"
+)
+
 assembly / assemblyOption := (assembly / assemblyOption).value.withIncludeScala(false)
 
 resolvers ++= Seq(
