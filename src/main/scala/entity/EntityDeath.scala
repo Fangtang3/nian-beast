@@ -79,10 +79,8 @@ class EntityDeath extends Listener {
             event.getEntity.getWorld.dropItem(event.getEntity.getLocation, itemStack)
           }
           // 始终执行，掉落数量为6到10的火药
-          if (true) {
-            val itemStack = new ItemStack(Material.GUNPOWDER, 6 + random.nextInt(4))
-            event.getEntity.getWorld.dropItem(event.getEntity.getLocation, itemStack)
-          }
+          val itemStack = new ItemStack(Material.GUNPOWDER, 6 + random.nextInt(4))
+          event.getEntity.getWorld.dropItem(event.getEntity.getLocation, itemStack)
           // 随机生成一个0到100的整数，小于70时，掉落数量为8的曲奇
           if (random.nextInt(100) < 70) {
             val itemStack = new ItemStack(Material.COOKIE, 8)
@@ -95,10 +93,15 @@ class EntityDeath extends Listener {
           }
           if (!event.getEntity.getScoreboardTags.contains("NORaid")) {
             //年兽袭击效果
-            if (true) if (event.getEntity.getKiller != null) if (!NianBeast.RaidEffect.contains(Objects.requireNonNull(event.getEntity.getKiller.getPlayerProfile.getUniqueId).toString)) try RaidEffectShow.AddEffect(event.getEntity.getKiller)
-            catch {
-              case e@(_: IOException | _: InvalidConfigurationException) =>
-                throw new RuntimeException(e)
+            if (event.getEntity.getKiller != null) {
+              if (!NianBeast.RaidEffect.contains(event.getEntity.getKiller.getPlayerProfile.getUniqueId)) {
+                try {
+                  RaidEffectShow.AddEffect(event.getEntity.getKiller)
+                } catch {
+                  case e@(_: IOException | _: InvalidConfigurationException) =>
+                    throw new RuntimeException(e)
+                }
+              }
             }
           }
         }
@@ -129,19 +132,13 @@ class EntityDeath extends Listener {
         }
         if (event.getEntity.getScoreboardTags.contains("nian_beastthree")) {
           event.getDrops.clear()
+          val itemStack1 = new ItemStack(Material.DIAMOND_BLOCK, 10)
+          event.getEntity.getWorld.dropItem(event.getEntity.getLocation, itemStack1)
+          val itemStack2 = new ItemStack(Material.GOLD_BLOCK, 20)
+          event.getEntity.getWorld.dropItem(event.getEntity.getLocation, itemStack2)
+          val itemStack3 = new ItemStack(Material.GUNPOWDER, 128)
+          event.getEntity.getWorld.dropItem(event.getEntity.getLocation, itemStack3)
           val random = new Random
-          if (true) {
-            val itemStack = new ItemStack(Material.DIAMOND_BLOCK, 10)
-            event.getEntity.getWorld.dropItem(event.getEntity.getLocation, itemStack)
-          }
-          if (true) {
-            val itemStack = new ItemStack(Material.GOLD_BLOCK, 20)
-            event.getEntity.getWorld.dropItem(event.getEntity.getLocation, itemStack)
-          }
-          if (true) {
-            val itemStack = new ItemStack(Material.GUNPOWDER, 128)
-            event.getEntity.getWorld.dropItem(event.getEntity.getLocation, itemStack)
-          }
           if (random.nextInt(100) < 10) {
             val itemStack = new ItemStack(Material.SPAWNER)
             event.getEntity.getWorld.dropItem(event.getEntity.getLocation, itemStack)
@@ -185,7 +182,7 @@ class EntityDeath extends Listener {
             val bookMeta = enchantedBook.getItemMeta.asInstanceOf[EnchantmentStorageMeta]
             // 如果要设置力量这个特定附魔（在1.13+版本中）
             // 使用以下代码替换上一行：
-            bookMeta.addStoredEnchant(Enchantment.SHARPNESS, 5, true)
+            bookMeta.addStoredEnchant(Enchantment.POWER, 5, true)
             // 应用元数据到物品上
             enchantedBook.setItemMeta(bookMeta)
             event.getEntity.getWorld.dropItem(event.getEntity.getLocation, enchantedBook)

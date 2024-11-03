@@ -1,16 +1,12 @@
 package com.wenkrang.nian_beast.entity.raid
 
+import com.wenkrang.nian_beast.entity.raid.RaidEffectShow.showEffect
 import com.wenkrang.nian_beast.{NianBeast, lib}
-import com.wenkrang.nian_beast.lib.SpigotConsoleColors
-import org.bukkit.Bukkit
-import org.bukkit.Location
-import org.bukkit.boss.BarColor
-import org.bukkit.boss.BarStyle
-import org.bukkit.boss.BossBar
+import org.bukkit.{Bukkit, Location}
+import org.bukkit.boss.{BarColor, BarStyle}
 import org.bukkit.configuration.InvalidConfigurationException
 import org.bukkit.entity.Player
-import org.bukkit.event.EventHandler
-import org.bukkit.event.Listener
+import org.bukkit.event.{EventHandler, Listener}
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.generator.structure.Structure
 import org.bukkit.plugin.java.JavaPlugin
@@ -20,6 +16,7 @@ import org.bukkit.util.StructureSearchResult
 import java.io.IOException
 import java.util
 import java.util.Objects
+import scala.annotation.tailrec
 
 object RaidEffectShow {
   /**
@@ -27,7 +24,7 @@ object RaidEffectShow {
    *
    * @param player 玩家对象
    */
-  def RemoveEffect(player: Player): Unit = {
+  def removeEffect(player: Player): Unit = {
     // 如果玩家的UUID在Nian_beast.RaidEffect中存在
     if (NianBeast.RaidEffect.contains(Objects.requireNonNull(player.getPlayerProfile.getUniqueId).toString)) {
       // 从Nian_beast.RaidEffect中移除玩家的UUID
@@ -49,7 +46,7 @@ object RaidEffectShow {
       // 将玩家的唯一ID添加到Nian_beast.RaidEffect集合中
       NianBeast.RaidEffect.add(player.getPlayerProfile.getUniqueId.toString)
       // 显示效果给玩家
-      RaidEffectShow.showeffect(player)
+      RaidEffectShow.showEffect(player)
       player.addScoreboardTag("Raid")
     }
   }
@@ -61,14 +58,15 @@ object RaidEffectShow {
    */
   @throws[IOException]
   @throws[InvalidConfigurationException]
-  def showeffect(player: Player): Unit = {
+  @tailrec
+  def showEffect(player: Player): Unit = {
     //如果玩家有这个效果，就显示效果
     if (NianBeast.RaidEffect.contains(player.getPlayerProfile.getUniqueId.toString)) {
       //效果的显示
-      val bossBar = Bukkit.createBossBar(lib.SpigotConsoleColors.DARK_YELLOW + lib.SpigotConsoleColors.BOLD + "年兽" + lib.SpigotConsoleColors.RESET + lib.SpigotConsoleColors.DARK_YELLOW + "袭击", BarColor.RED, BarStyle.SOLID)
+      val bossBar = Bukkit.createBossBar(lib.SpigotConsoleColors.DARK_YELLOW + lib.SpigotConsoleColors.BOLD + "年兽" + lib.SpigotConsoleColors.RESET + lib.SpigotConsoleColors.DARK_YELLOW + "袭击 - 年兽之兆", BarColor.BLUE, BarStyle.SOLID)
       bossBar.setVisible(true)
       bossBar.addPlayer(player)
-      bossBar.setProgress(0)
+      bossBar.setProgress(1)
       //持续检测玩家的位置，以便更新效果显示
       new BukkitRunnable() {
         override def run(): Unit = {
@@ -107,47 +105,50 @@ object RaidEffectShow {
                 }
                 min = min - 40
                 min = 160 - min
-                if (min > 0) if (min > 160) {
-                  //触发事件
-                  bossBar.setStyle(BarStyle.SOLID)
-                  bossBar.setProgress(0)
-                  bossBar.setTitle(lib.SpigotConsoleColors.DARK_YELLOW + lib.SpigotConsoleColors.BOLD + "年兽" + lib.SpigotConsoleColors.RESET + lib.SpigotConsoleColors.DARK_YELLOW + "袭击 - 即将来临")
-                  RemoveEffect(player)
-                  RaidEvent.LoadRaid(bossBar, location, player)
-                }
-                else {
-                  bossBar.setStyle(BarStyle.SEGMENTED_12)
-                  bossBar.setTitle(lib.SpigotConsoleColors.DARK_YELLOW + lib.SpigotConsoleColors.BOLD + "年兽" + lib.SpigotConsoleColors.RESET + lib.SpigotConsoleColors.DARK_YELLOW + "袭击")
-                  val progress = min / 160
-                  try bossBar.setProgress(progress)
-                  catch {
-                    case e: Exception =>
+                if (min > 0) {
+                  if (min > 160) {
+                    //触发事件
+                    bossBar.setStyle(BarStyle.SOLID)
+                    bossBar.setProgress(0)
+                    bossBar.setColor(BarColor.YELLOW)
+                    bossBar.setTitle(lib.SpigotConsoleColors.DARK_YELLOW + lib.SpigotConsoleColors.BOLD + "年兽" + lib.SpigotConsoleColors.RESET + lib.SpigotConsoleColors.DARK_YELLOW + "袭击 - 即将来临")
+                    removeEffect(player)
+                    RaidEvent.LoadRaid(bossBar, location, player)
+                  } else {
+                    bossBar.setStyle(BarStyle.SEGMENTED_12)
+                    bossBar.setColor(BarColor.RED)
+                    bossBar.setTitle(lib.SpigotConsoleColors.DARK_YELLOW + lib.SpigotConsoleColors.BOLD + "年兽" + lib.SpigotConsoleColors.RESET + lib.SpigotConsoleColors.DARK_YELLOW + "袭击")
+                    val progress = min / 160
+                    try bossBar.setProgress(progress)
+                    catch {
+                      case e: Exception =>
+                    }
                   }
-                }
-                else {
+                } else {
                   bossBar.setStyle(BarStyle.SOLID)
                   bossBar.setProgress(1)
                 }
+              } else {
+                //范围内找不到村庄
+                bossBar.setProgress(1)
               }
-              else bossBar.setProgress(1)
             }
           }.runTaskLater(JavaPlugin.getPlugin(classOf[NianBeast]), 0)
           else cancel()
         }
       }.runTaskTimerAsynchronously(JavaPlugin.getPlugin(classOf[NianBeast]), 0, 2)
-    }
-    else if (player.getScoreboardTags.contains("Raid")) {
+    } else if (player.getScoreboardTags.contains("Raid")) {
       AddEffect(player)
-      showeffect(player)
+      showEffect(player)
     }
-  }
-
-  @EventHandler
-  @throws[IOException]
-  @throws[InvalidConfigurationException]
-  def OnRaidEffectShow(event: PlayerJoinEvent): Unit = {
-    showeffect(event.getPlayer)
   }
 }
 
-class RaidEffectShow extends Listener {}
+class RaidEffectShow extends Listener {
+  @EventHandler
+  @throws[IOException]
+  @throws[InvalidConfigurationException]
+  def onRaidEffectShow(event: PlayerJoinEvent): Unit = {
+    showEffect(event.getPlayer)
+  }
+}
