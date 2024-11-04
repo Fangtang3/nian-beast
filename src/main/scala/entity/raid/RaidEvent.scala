@@ -1,13 +1,11 @@
-package com.wenkrang.nian_beast.entity.raid
+package com.wenkrang.nian_beast
+package entity.raid
 
 import com.wenkrang.nian_beast.{NianBeast, lib}
-import com.wenkrang.nian_beast.lib.SpigotConsoleColors
 import org.bukkit._
 import org.bukkit.attribute.Attribute
-import org.bukkit.attribute.AttributeInstance
 import org.bukkit.attribute.AttributeModifier
-import org.bukkit.boss.BarStyle
-import org.bukkit.boss.BossBar
+import org.bukkit.boss.{BarColor, BarStyle, BossBar}
 import org.bukkit.entity._
 import org.bukkit.generator.structure.Structure
 import org.bukkit.plugin.java.JavaPlugin
@@ -18,8 +16,11 @@ import org.bukkit.util.StructureSearchResult
 
 import java.util._
 import java.util
+import scala.collection.JavaConverters.collectionAsScalaIterableConverter
+import scala.collection.mutable.ListBuffer
 
 object RaidEvent {
+  @Deprecated(forRemoval = true)
   def getnearvillage(player: Player): Structure = {
     val locations = new util.ArrayList[Location]
     val results = new util.ArrayList[StructureSearchResult]
@@ -58,7 +59,7 @@ object RaidEvent {
     structure
   }
 
-  def RaidThree(bossBar: BossBar, location: Location, player: Player, Realocation: Location): Unit = {
+  private def RaidThree(bossBar: BossBar, location: Location, player: Player): Unit = {
     bossBar.setStyle(BarStyle.SOLID)
     bossBar.setProgress(0)
     new BukkitRunnable() {
@@ -68,12 +69,12 @@ object RaidEvent {
           new BukkitRunnable() {
             override def run(): Unit = {
               // 袭击号角
-              val nearbyEntities = Objects.requireNonNull(location.getWorld).getNearbyEntities(location, 150, 150, 150)
-              import scala.collection.JavaConversions._
+              val nearbyEntities = Objects.requireNonNull(location.getWorld).getNearbyEntities(location, 150, 150, 150).asScala
               for (entity <- nearbyEntities) {
-                if (entity.isInstanceOf[Player]) {
-                  val player1 = entity.asInstanceOf[Player]
-                  player1.playSound(player1.getLocation, Sound.EVENT_RAID_HORN, 100, 1)
+                entity match {
+                  case player1: Player =>
+                    player1.playSound(player1.getLocation, Sound.EVENT_RAID_HORN, 100, 1)
+                  case _ =>
                 }
               }
               location.getWorld.playSound(location, Sound.EVENT_RAID_HORN, 100, 1)
@@ -82,8 +83,8 @@ object RaidEvent {
           // 袭击开始
           new BukkitRunnable() {
             override def run(): Unit = {
-              val entities = new util.ArrayList[Entity]
-              for (i <- 0 until 20) {
+              val entities = new ListBuffer[Entity]
+              for (_ <- 0 until 20) {
                 val location1 = location.clone
                 location1.add(0, 20, 0)
                 val random = new Random
@@ -104,10 +105,6 @@ object RaidEvent {
                     // 将年兽添加到"nian_beastone"的分数板上
                     polarBear.addScoreboardTag("nian_beastone")
                     polarBear.addScoreboardTag("NORaid")
-                    // 设置年兽的最大生命值为60滴
-                    val newMaxHealth = 60.0
-                    // 生成一个随机的UUID
-                    val uuid = UUID.randomUUID
                     // 获取年兽的"最大生命值"属性实例
                     var maxHealthAttribute = polarBear.getAttribute(Attribute.MAX_HEALTH)
                     // 在原有最大生命值的基础上增加30滴
@@ -125,13 +122,13 @@ object RaidEvent {
                     // 闪烁效果
                     val GlowingEffect = new PotionEffect(PotionEffectType.GLOWING, Integer.MAX_VALUE, 1, true, false)
                     GlowingEffect.apply(polarBear)
-                    entities.add(polarBear)
+                    entities += polarBear
                     val SlowEffect = new PotionEffect(PotionEffectType.SLOW_FALLING, Integer.MAX_VALUE, 1, true, false)
                     SlowEffect.apply(polarBear)
                   }
                 }.runTaskLater(JavaPlugin.getPlugin(classOf[NianBeast]), 30)
               }
-              for (i <- 0 until 15) {
+              for (_ <- 0 until 15) {
                 val location1 = location.clone
                 location1.add(0, 20, 0)
                 val random = new Random
@@ -148,7 +145,6 @@ object RaidEvent {
                     phantom.setCustomName(lib.SpigotConsoleColors.DARK_YELLOW + lib.SpigotConsoleColors.BOLD + "年兽" + lib.SpigotConsoleColors.RESET + lib.SpigotConsoleColors.DARK_YELLOW + "-飞行")
                     phantom.setCustomNameVisible(true)
                     phantom.addScoreboardTag("nian_beasttwo")
-                    val uuid = UUID.randomUUID
                     var maxHealthAttribute = phantom.getAttribute(Attribute.MAX_HEALTH)
                     //这是在北极熊原有的30滴血上增加30滴
                     var modifier = new AttributeModifier("new MaxHealth", 30, AttributeModifier.Operation.ADD_NUMBER)
@@ -162,53 +158,49 @@ object RaidEvent {
                     speedEffect.apply(phantom)
                     val GlowingEffect = new PotionEffect(PotionEffectType.GLOWING, Integer.MAX_VALUE, 1, true, false)
                     GlowingEffect.apply(phantom)
-                    entities.add(phantom)
+                    entities += phantom
                   }
                 }.runTaskLater(JavaPlugin.getPlugin(classOf[NianBeast]), 30)
               }
-              if (true) {
-                val location1 = location.clone
-                location1.add(0, 20, 0)
-                val random = new Random
-                if (random.nextInt(100) > 50) location1.add(random.nextInt(30), 0, 0)
-                else location1.add(-random.nextInt(30), 0, 0)
-                if (random.nextInt(100) > 50) location1.add(0, 0, random.nextInt(30))
-                else location1.add(0, 0, -random.nextInt(30))
-                location1.getWorld.spawnParticle(Particle.SONIC_BOOM, location1, 1)
-                player.sendMessage(location1.toString)
-                new BukkitRunnable() {
-                  override def run(): Unit = {
-                    val ravager = location1.getWorld.spawnEntity(location1, EntityType.RAVAGER).asInstanceOf[Ravager]
-                    ravager.setCustomName(lib.SpigotConsoleColors.DARK_YELLOW + lib.SpigotConsoleColors.BOLD + "年兽" + lib.SpigotConsoleColors.RESET + lib.SpigotConsoleColors.DARK_YELLOW + "王")
-                    ravager.setCustomNameVisible(true)
-                    ravager.addScoreboardTag("nian_beastthree")
-                    val uuid = UUID.randomUUID
-                    var maxHealthAttribute = ravager.getAttribute(Attribute.MAX_HEALTH)
-                    var modifier = new AttributeModifier("new MaxHealth", 500, AttributeModifier.Operation.ADD_NUMBER)
-                    maxHealthAttribute.addModifier(modifier)
-                    ravager.setHealth(600)
-                    maxHealthAttribute = ravager.getAttribute(Attribute.ATTACK_DAMAGE)
-                    modifier = new AttributeModifier("new DAMAGE", 12, AttributeModifier.Operation.ADD_NUMBER)
-                    maxHealthAttribute.addModifier(modifier)
-                    val GlowingEffect = new PotionEffect(PotionEffectType.GLOWING, Integer.MAX_VALUE, 1, true, false)
-                    GlowingEffect.apply(ravager)
-                    entities.add(ravager)
-                  }
-                }.runTaskLater(JavaPlugin.getPlugin(classOf[NianBeast]), 30)
-              }
+              val location2 = location.clone
+              location2.add(0, 20, 0)
+              val random = new Random
+              if (random.nextInt(100) > 50) location2.add(random.nextInt(30), 0, 0)
+              else location2.add(-random.nextInt(30), 0, 0)
+              if (random.nextInt(100) > 50) location2.add(0, 0, random.nextInt(30))
+              else location2.add(0, 0, -random.nextInt(30))
+              location2.getWorld.spawnParticle(Particle.SONIC_BOOM, location2, 1)
+              player.sendMessage(location2.toString)
+              new BukkitRunnable() {
+                override def run(): Unit = {
+                  val ravager = location2.getWorld.spawnEntity(location2, EntityType.RAVAGER).asInstanceOf[Ravager]
+                  ravager.setCustomName(lib.SpigotConsoleColors.DARK_YELLOW + lib.SpigotConsoleColors.BOLD + "年兽" + lib.SpigotConsoleColors.RESET + lib.SpigotConsoleColors.DARK_YELLOW + "王")
+                  ravager.setCustomNameVisible(true)
+                  ravager.addScoreboardTag("nian_beastthree")
+                  var maxHealthAttribute = ravager.getAttribute(Attribute.MAX_HEALTH)
+                  var modifier = new AttributeModifier("new MaxHealth", 500, AttributeModifier.Operation.ADD_NUMBER)
+                  maxHealthAttribute.addModifier(modifier)
+                  ravager.setHealth(600)
+                  maxHealthAttribute = ravager.getAttribute(Attribute.ATTACK_DAMAGE)
+                  modifier = new AttributeModifier("new DAMAGE", 12, AttributeModifier.Operation.ADD_NUMBER)
+                  maxHealthAttribute.addModifier(modifier)
+                  val GlowingEffect = new PotionEffect(PotionEffectType.GLOWING, Integer.MAX_VALUE, 1, true, false)
+                  GlowingEffect.apply(ravager)
+                  entities += ravager
+                }
+              }.runTaskLater(JavaPlugin.getPlugin(classOf[NianBeast]), 30)
               bossBar.setStyle(BarStyle.SEGMENTED_12)
               new BukkitRunnable() {
                 override def run(): Unit = {
                   if (NianBeast.isShutdown) cancel()
                   var LIFE = 0
-                  import scala.collection.JavaConversions._
                   for (entity <- entities) {
                     if (!entity.isDead) LIFE += 1
                   }
                   val finalLIFE = LIFE
                   new BukkitRunnable() {
                     override def run(): Unit = {
-                      player.sendMessage(entities.toString)
+                      //player.sendMessage(entities.toString) // why?
                       bossBar.setProgress(finalLIFE.toDouble / 36)
                     }
                   }.runTaskLater(JavaPlugin.getPlugin(classOf[NianBeast]), 0)
@@ -217,14 +209,15 @@ object RaidEvent {
                       override def run(): Unit = {
                         bossBar.setProgress(1)
                         bossBar.setTitle(lib.SpigotConsoleColors.DARK_YELLOW + lib.SpigotConsoleColors.BOLD + "年兽" + lib.SpigotConsoleColors.RESET + lib.SpigotConsoleColors.DARK_YELLOW + "袭击 - 胜利")
-                        val nearbyEntities = Objects.requireNonNull(location.getWorld).getNearbyEntities(location, 150, 150, 150)
-                        import scala.collection.JavaConversions._
+                        bossBar.setColor(BarColor.GREEN)
+                        val nearbyEntities = Objects.requireNonNull(location.getWorld).getNearbyEntities(location, 150, 150, 150).asScala
                         for (entity <- nearbyEntities) {
-                          if (entity.isInstanceOf[Player]) {
-                            val player1 = entity.asInstanceOf[Player]
-                            val potionEffect = new PotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE, 114514 * 20, 1, true, false)
-                            potionEffect.apply(player1)
-                            player1.playSound(player1.getLocation, Sound.UI_TOAST_CHALLENGE_COMPLETE, 100, 1)
+                          entity match {
+                            case player1: Player =>
+                              val potionEffect = new PotionEffect(PotionEffectType.HERO_OF_THE_VILLAGE, 114514 * 20, 1, true, false)
+                              potionEffect.apply(player1)
+                              player1.playSound(player1.getLocation, Sound.UI_TOAST_CHALLENGE_COMPLETE, 100, 1)
+                            case _ =>
                           }
                         }
                       }
@@ -253,7 +246,7 @@ object RaidEvent {
     }.runTaskTimerAsynchronously(JavaPlugin.getPlugin(classOf[NianBeast]), 0, 5)
   }
 
-  def RaidTwo(bossBar: BossBar, location: Location, player: Player, Realocation: Location): Unit = {
+  private def RaidTwo(bossBar: BossBar, location: Location, player: Player): Unit = {
     bossBar.setStyle(BarStyle.SOLID)
     bossBar.setProgress(0)
     new BukkitRunnable() {
@@ -263,12 +256,12 @@ object RaidEvent {
           // 袭击号角
           new BukkitRunnable() {
             override def run(): Unit = {
-              val nearbyEntities = Objects.requireNonNull(location.getWorld).getNearbyEntities(location, 150, 150, 150)
-              import scala.collection.JavaConversions._
+              val nearbyEntities = Objects.requireNonNull(location.getWorld).getNearbyEntities(location, 150, 150, 150).asScala
               for (entity <- nearbyEntities) {
-                if (entity.isInstanceOf[Player]) {
-                  val player1 = entity.asInstanceOf[Player]
-                  player1.playSound(player1.getLocation, Sound.EVENT_RAID_HORN, 100, 1)
+                entity match {
+                  case player1: Player =>
+                    player1.playSound(player1.getLocation, Sound.EVENT_RAID_HORN, 100, 1)
+                  case _ =>
                 }
               }
               location.getWorld.playSound(location, Sound.EVENT_RAID_HORN, 100, 1)
@@ -277,8 +270,8 @@ object RaidEvent {
           // 袭击开始
           new BukkitRunnable() {
             override def run(): Unit = {
-              val entities = new util.ArrayList[Entity]
-              for (i <- 0 until 15) {
+              val entities = new ListBuffer[Entity]
+              for (_ <- 0 until 15) {
                 val location1 = location.clone
                 location1.add(0, 20, 0)
                 val random = new Random
@@ -298,10 +291,6 @@ object RaidEvent {
                     // 将年兽添加到"nian_beastone"的分数板上
                     polarBear.addScoreboardTag("nian_beastone")
                     polarBear.addScoreboardTag("NORaid")
-                    // 设置年兽的最大生命值为60滴
-                    val newMaxHealth = 60.0
-                    // 生成一个随机的UUID
-                    val uuid = UUID.randomUUID
                     // 获取年兽的"最大生命值"属性实例
                     var maxHealthAttribute = polarBear.getAttribute(Attribute.MAX_HEALTH)
                     // 在原有最大生命值的基础上增加30滴
@@ -319,13 +308,13 @@ object RaidEvent {
                     // 闪烁效果
                     val GlowingEffect = new PotionEffect(PotionEffectType.GLOWING, Integer.MAX_VALUE, 1, true, false)
                     GlowingEffect.apply(polarBear)
-                    entities.add(polarBear)
+                    entities += polarBear
                     val SlowEffect = new PotionEffect(PotionEffectType.SLOW_FALLING, Integer.MAX_VALUE, 1, true, false)
                     SlowEffect.apply(polarBear)
                   }
                 }.runTaskLater(JavaPlugin.getPlugin(classOf[NianBeast]), 30)
               }
-              for (i <- 0 until 10) {
+              for (_ <- 0 until 10) {
                 val location1 = location.clone
                 location1.add(0, 10, 0)
                 val random = new Random
@@ -341,7 +330,6 @@ object RaidEvent {
                     phantom.setCustomName(lib.SpigotConsoleColors.DARK_YELLOW + lib.SpigotConsoleColors.BOLD + "年兽" + lib.SpigotConsoleColors.RESET + lib.SpigotConsoleColors.DARK_YELLOW + "-飞行")
                     phantom.setCustomNameVisible(true)
                     phantom.addScoreboardTag("nian_beasttwo")
-                    val uuid = UUID.randomUUID
                     var maxHealthAttribute = phantom.getAttribute(Attribute.MAX_HEALTH)
                     //这是在北极熊原有的30滴血上增加30滴
                     var modifier = new AttributeModifier("new MaxHealth", 30, AttributeModifier.Operation.ADD_NUMBER)
@@ -355,7 +343,7 @@ object RaidEvent {
                     speedEffect.apply(phantom)
                     val GlowingEffect = new PotionEffect(PotionEffectType.GLOWING, Integer.MAX_VALUE, 1, true, false)
                     GlowingEffect.apply(phantom)
-                    entities.add(phantom)
+                    entities += phantom
                   }
                 }.runTaskLater(JavaPlugin.getPlugin(classOf[NianBeast]), 30)
               }
@@ -364,7 +352,6 @@ object RaidEvent {
                 override def run(): Unit = {
                   if (NianBeast.isShutdown) cancel()
                   var LIFE = 0
-                  import scala.collection.JavaConversions._
                   for (entity <- entities) {
                     if (!entity.isDead) LIFE += 1
                   }
@@ -377,7 +364,7 @@ object RaidEvent {
                   if (bossBar.getProgress == 0) {
                     new BukkitRunnable() {
                       override def run(): Unit = {
-                        RaidThree(bossBar, location, player, location)
+                        RaidThree(bossBar, location, player)
                       }
                     }.runTaskLater(JavaPlugin.getPlugin(classOf[NianBeast]), 0)
                     cancel()
@@ -405,22 +392,22 @@ object RaidEvent {
    * @param player      玩家
    * @param Realocation 重新定位
    */
-  def RaidMain(bossBar: BossBar, location: Location, player: Player, Realocation: Location): Unit = {
+  private def RaidMain(bossBar: BossBar, location: Location, player: Player, Realocation: Location): Unit = {
     // 袭击号角
-    val nearbyEntities = location.getWorld.getNearbyEntities(location, 150, 150, 150)
-    import scala.collection.JavaConversions._
+    val nearbyEntities = location.getWorld.getNearbyEntities(location, 150, 150, 150).asScala
     for (entity <- nearbyEntities) {
-      if (entity.isInstanceOf[Player]) {
-        val player1 = entity.asInstanceOf[Player]
-        player1.playSound(player1.getLocation, Sound.EVENT_RAID_HORN, 100, 1)
+      entity match {
+        case player1: Player =>
+          player1.playSound(player1.getLocation, Sound.EVENT_RAID_HORN, 100, 1)
+        case _ =>
       }
     }
     location.getWorld.playSound(location, Sound.EVENT_RAID_HORN, 100, 1)
     // 袭击开始
     new BukkitRunnable() {
       override def run(): Unit = {
-        val entities = new util.ArrayList[Entity]
-        for (i <- 0 until 10) {
+        val entities = new ListBuffer[Entity]
+        for (_ <- 0 until 10) {
           val location1 = location.clone
           location1.add(0, 20, 0)
           val random = new Random
@@ -440,10 +427,6 @@ object RaidEvent {
               // 将年兽添加到"nian_beastone"的分数板上
               polarBear.addScoreboardTag("nian_beastone")
               polarBear.addScoreboardTag("NORaid")
-              // 设置年兽的最大生命值为60滴
-              val newMaxHealth = 60.0
-              // 生成一个随机的UUID
-              val uuid = UUID.randomUUID
               // 获取年兽的"最大生命值"属性实例
               var maxHealthAttribute = polarBear.getAttribute(Attribute.MAX_HEALTH)
               // 在原有最大生命值的基础上增加30滴
@@ -461,7 +444,7 @@ object RaidEvent {
               // 闪烁效果
               val GlowingEffect = new PotionEffect(PotionEffectType.GLOWING, Integer.MAX_VALUE, 1, true, false)
               GlowingEffect.apply(polarBear)
-              entities.add(polarBear)
+              entities += polarBear
               val SlowEffect = new PotionEffect(PotionEffectType.SLOW_FALLING, Integer.MAX_VALUE, 1, true, false)
               SlowEffect.apply(polarBear)
             }
@@ -472,7 +455,6 @@ object RaidEvent {
           override def run(): Unit = {
             if (NianBeast.isShutdown) cancel()
             var LIFE = 0
-            import scala.collection.JavaConversions._
             for (entity <- entities) {
               if (!entity.isDead) LIFE += 1
             }
@@ -488,7 +470,7 @@ object RaidEvent {
                 override def run(): Unit = {
                   new BukkitRunnable() {
                     override def run(): Unit = {
-                      RaidTwo(bossBar, location, player, location)
+                      RaidTwo(bossBar, location, player)
                     }
                   }.runTaskLater(JavaPlugin.getPlugin(classOf[NianBeast]), 0)
                 }
@@ -541,12 +523,12 @@ object RaidEvent {
       new BukkitRunnable() {
         override def run(): Unit = {
           if (NianBeast.isShutdown) cancel()
-          val nearbyEntities = Objects.requireNonNull(location.getWorld).getNearbyEntities(location, 150, 150, 150)
-          import scala.collection.JavaConversions._
+          val nearbyEntities = Objects.requireNonNull(location.getWorld).getNearbyEntities(location, 150, 150, 150).asScala
           for (entity <- nearbyEntities) {
-            if (entity.isInstanceOf[Player]) {
-              val player1 = entity.asInstanceOf[Player]
-              bossBar.addPlayer(player1)
+            entity match {
+              case player1: Player =>
+                bossBar.addPlayer(player1)
+              case _ =>
             }
           }
         }

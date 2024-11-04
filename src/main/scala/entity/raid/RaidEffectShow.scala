@@ -1,6 +1,7 @@
-package com.wenkrang.nian_beast.entity.raid
+package com.wenkrang.nian_beast
+package entity.raid
 
-import com.wenkrang.nian_beast.entity.raid.RaidEffectShow.showEffect
+import entity.raid.RaidEffectShow.showEffect
 import com.wenkrang.nian_beast.{NianBeast, lib}
 import org.bukkit.{Bukkit, Location}
 import org.bukkit.boss.{BarColor, BarStyle}
@@ -11,12 +12,11 @@ import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.generator.structure.Structure
 import org.bukkit.plugin.java.JavaPlugin
 import org.bukkit.scheduler.BukkitRunnable
-import org.bukkit.util.StructureSearchResult
 
 import java.io.IOException
-import java.util
 import java.util.Objects
 import scala.annotation.tailrec
+import scala.collection.mutable.ListBuffer
 
 object RaidEffectShow {
   /**
@@ -24,7 +24,7 @@ object RaidEffectShow {
    *
    * @param player 玩家对象
    */
-  def removeEffect(player: Player): Unit = {
+  private def removeEffect(player: Player): Unit = {
     // 如果玩家的UUID在Nian_beast.RaidEffect中存在
     if (NianBeast.RaidEffect.contains(Objects.requireNonNull(player.getPlayerProfile.getUniqueId).toString)) {
       // 从Nian_beast.RaidEffect中移除玩家的UUID
@@ -72,35 +72,35 @@ object RaidEffectShow {
         override def run(): Unit = {
           if (player.isOnline && NianBeast.RaidEffect.contains(player.getPlayerProfile.getUniqueId.toString)) new BukkitRunnable() {
             override def run(): Unit = {
-              val locations = new util.ArrayList[Location]
-              val results = new util.ArrayList[StructureSearchResult]
-              results.add(player.getWorld.locateNearestStructure(player.getLocation, Structure.VILLAGE_DESERT, 200, false))
-              results.add(player.getWorld.locateNearestStructure(player.getLocation, Structure.VILLAGE_SNOWY, 200, false))
-              results.add(player.getWorld.locateNearestStructure(player.getLocation, Structure.VILLAGE_PLAINS, 200, false))
-              results.add(player.getWorld.locateNearestStructure(player.getLocation, Structure.VILLAGE_SAVANNA, 200, false))
-              results.add(player.getWorld.locateNearestStructure(player.getLocation, Structure.VILLAGE_TAIGA, 200, false))
-              val structures = new util.ArrayList[Structure]
-              import scala.collection.JavaConversions._
+              val locations = new ListBuffer[Location]
+              val results = List(
+                player.getWorld.locateNearestStructure(player.getLocation, Structure.VILLAGE_DESERT, 200, false),
+                player.getWorld.locateNearestStructure(player.getLocation, Structure.VILLAGE_SNOWY, 200, false),
+                player.getWorld.locateNearestStructure(player.getLocation, Structure.VILLAGE_PLAINS, 200, false),
+                player.getWorld.locateNearestStructure(player.getLocation, Structure.VILLAGE_SAVANNA, 200, false),
+                player.getWorld.locateNearestStructure(player.getLocation, Structure.VILLAGE_TAIGA, 200, false)
+              )
+              val structures = new ListBuffer[Structure]
               for (result <- results) {
                 if (result != null) {
-                  locations.add(result.getLocation)
-                  structures.add(result.getStructure)
+                  locations += result.getLocation
+                  structures += result.getStructure
                 }
               }
-              if (!locations.isEmpty) {
+              if (locations.nonEmpty) {
                 //从Location获取与玩家的距离
-                for (i <- 0 until locations.size) {
-                  val location = locations.get(i).clone
+                for (i <- locations.indices) {
+                  val location = locations.apply(i).clone
                   location.setY(player.getLocation.getBlockY)
-                  locations.set(i, location)
+                  locations.update(i, location)
                 }
                 var location: Location = null
                 //从distances选出最小值
-                var min = locations.get(0).distance(player.getLocation)
+                var min = locations.head.distance(player.getLocation)
                 for (i <- 1 until locations.size) {
-                  if (locations.get(i).distance(player.getLocation) < min) {
-                    min = locations.get(i).distance(player.getLocation)
-                    location = locations.get(i)
+                  if (locations.apply(i).distance(player.getLocation) < min) {
+                    min = locations.apply(i).distance(player.getLocation)
+                    location = locations.apply(i)
                   }
                 }
                 min = min - 40
@@ -119,10 +119,7 @@ object RaidEffectShow {
                     bossBar.setColor(BarColor.RED)
                     bossBar.setTitle(lib.SpigotConsoleColors.DARK_YELLOW + lib.SpigotConsoleColors.BOLD + "年兽" + lib.SpigotConsoleColors.RESET + lib.SpigotConsoleColors.DARK_YELLOW + "袭击")
                     val progress = min / 160
-                    try bossBar.setProgress(progress)
-                    catch {
-                      case e: Exception =>
-                    }
+                    bossBar.setProgress(progress)
                   }
                 } else {
                   bossBar.setStyle(BarStyle.SOLID)

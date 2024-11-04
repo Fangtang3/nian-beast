@@ -13,7 +13,7 @@ object NianBeast {
   var isShutdown = false
   val Keys = new util.ArrayList[String]()
   val RaidEffect = new util.ArrayList[String]()
-  val asciiArt =
+  private val asciiArt =
     """"    _   ___                  __                    __
       |   / | / (_)___ _____       / /_  ___  ____ ______/ /_
       |  /  |/ / / __ `/ __ \\     / __ \\/ _ \\/ __ `/ ___/ __/
